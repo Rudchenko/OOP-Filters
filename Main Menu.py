@@ -7,6 +7,8 @@ from PIL import ImageGrab
 from tkinter import filedialog
 from ipycanvas import Canvas
 from tkinter import simpledialog, messagebox
+import PIL
+import numpy as np
 
 from MyImage import *
 from Transformation import *
@@ -44,7 +46,11 @@ def save_image():
     if 'resized_image' in globals():
         filepath = asksaveasfilename(title="Зберегти фото", defaultextension=".jpg",
                                                 filetypes=[("JPEG", "*.jpg"), ("PNG", "*.png")])
-        resized_image.save(filepath)
+
+        resized_image_PIL = Image.fromarray(resized_image.get_image()) 
+        resized_image_PIL.save("output.jpg") 
+        
+        resized_image_PIL.save(filepath)
 
 
 draw_active = False
@@ -57,8 +63,14 @@ def draw():
             return  
 
         draw_active = True
-        draw = ImageDraw.Draw(resized_image)
-        photo = ImageTk.PhotoImage(resized_image)
+        print(type(resized_image))
+
+        resized_image_PIL = Image.fromarray(resized_image.get_image()) 
+
+        resized_image_PIL.save("output.jpg") 
+        
+        draw = ImageDraw.Draw(resized_image_PIL)
+        photo = ImageTk.PhotoImage(resized_image_PIL)
         canvas.create_image(0, 0, anchor="nw", image=photo)
 
         def get_x_and_y(event):
@@ -129,10 +141,10 @@ def create_dialog():
     dialog.transient(root)
     dialog.title("Вирізати зображення")
     
-    width_label = tk.Label(dialog, text=f"Максимальний x на тепер: {resized_image.height}")
+    width_label = tk.Label(dialog, text=f"Максимальний x на тепер: {resized_image.get_height()}")
     width_label.pack()
     
-    height_label = tk.Label(dialog, text=f"Максимальний y на тепер: {resized_image.height}")
+    height_label = tk.Label(dialog, text=f"Максимальний y на тепер: {resized_image.get_height()}")
     height_label.pack()
     
 
@@ -169,9 +181,13 @@ def process_dialog(dialog, x1, y1, x2, y2):
         x2 = int(x2)
         y2 = int(y2)
 
-        resized_image = resized_image.crop((x1, y1, x2, y2))
-        root.geometry(f"{resized_image.width}x{resized_image.height}")
-        photo = ImageTk.PhotoImage(resized_image)
+
+        resized_image_PIL = Image.fromarray(resized_image.get_image()) 
+        resized_image_PIL.save("output.jpg") 
+
+        resized_image_PIL = resized_image_PIL.crop((x1, y1, x2, y2))
+        root.geometry(f"{resized_image_PIL.width}x{resized_image_PIL.height}")
+        photo = ImageTk.PhotoImage(resized_image_PIL)
         canvas.create_image(0, 0, anchor="nw", image=photo)
         canvas.resized_image = photo
     else:
